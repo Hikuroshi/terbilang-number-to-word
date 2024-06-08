@@ -100,3 +100,11 @@ Thank you for considering contributing to this project!
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support the Project
+
+If you find this project useful and would like to support its development, please consider making a donation. Your contributions help to cover the costs of development and ensure the project remains well-maintained.
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/hikuroshi)
+
+Thank you for your support!
