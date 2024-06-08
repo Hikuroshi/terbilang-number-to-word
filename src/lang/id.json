@@ -24,7 +24,6 @@
     "sembilan belas"
   ],
   "tens": [
-    "",
     "sepuluh",
     "dua puluh",
     "tiga puluh",
@@ -35,8 +34,14 @@
     "delapan puluh",
     "sembilan puluh"
   ],
-  "hundred": "ratus",
-  "thousands": ["", "ribu", "juta", "milyar", "triliun"],
-  "simply": "se",
-  "simplifyRules": ["ratus", "ribu", "juta", "milyar", "triliun"]
+  "magnitudes": [
+    "ratus",
+    "ribu",
+    "juta",
+    "milyar",
+    "triliun",
+    "kuardriliun",
+    "kuintiliun"
+  ],
+  "simply": "se"
 }

@@ -29,7 +29,7 @@ echo Terbilang::terbilang(24434, true); // Outputs "two four four three four"
 Create a new instance of the Terbilang class with the specified number.
 
 - `$number`: The number to be converted to words.
-- `$apart`: Whether to use separated word representation for each digit (true) or full number word representation (false).
+- `$apart`: Whether to use separated word representation for each digit (true) or full number word representation (false). Default is `false`.
 
 ```php
 use Hikuroshi\Terbilang;
@@ -38,24 +38,13 @@ use Hikuroshi\Terbilang;
 echo Terbilang::terbilang(24434); // Outputs "twenty four thousand four hundred thirty four"
 ```
 
-### `Terbilang::lang(string $language): Terbilang`
+...
 
-Set the language for number conversion.
+### `Terbilang::simply($simply = true | array): Terbilang`
 
-- `$language`: The language code (e.g., 'id' for Indonesian, 'en' for English).
+Simplify the word representation based on the specified rules. Examples such as "One Hundred" to "A Hundred"
 
-```php
-use Hikuroshi\Terbilang;
-
-// Convert number to words with Indonesian language
-echo Terbilang::terbilang(24434)->lang('id'); // Outputs "dua puluh empat ribu empat ratus tiga puluh empat"
-```
-
-### `Terbilang::simply($simply = true): Terbilang`
-
-Simplify the word representation based on the specified rules.
-
-- `$simply`: If true, apply default simplification rules. If array, use the specified simplification rules.
+- `$simply`: If true, apply default simplification rules. If array, use the specified simplification rules. Default without use this method is `false`.
 
 ```php
 use Hikuroshi\Terbilang;
@@ -67,11 +56,35 @@ echo Terbilang::terbilang(1111)->simply(); // Outputs "a thousand a hundred elev
 echo Terbilang::terbilang(1111)->simply(['hundred']); // Outputs "one thousand a hundred eleven"
 ```
 
+...
+
+### `Terbilang::lang(string $language): Terbilang`
+
+Set the language for number conversion.
+
+- `$language`: The language code (e.g., 'id' for Indonesian, 'en' for English). Default is `en`.
+
+#### Supported Languages
+
+| Language   | Code | Simply Rules                                                                              |
+| ---------- | ---- | ----------------------------------------------------------------------------------------- |
+| English    | `en` | `["hundred", "thousand", "million", "billion", "trillion", "quadrillion", "quintillion"]` |
+| Indonesian | `id` | `["ratus", "ribu", "juta", "milyar", "triliun", "kuardriliun", "kuintiliun"]`             |
+
+```php
+use Hikuroshi\Terbilang;
+
+// Convert number to words with Indonesian language
+echo Terbilang::terbilang(24434)->lang('id'); // Outputs "dua puluh empat ribu empat ratus tiga puluh empat"
+```
+
+...
+
 ### `Terbilang::separator(string $separator): Terbilang`
 
 Set the separator to use between words.
 
-- `$separator`: The separator string.
+- `$separator`: The separator string. Default is `" "`.
 
 ```php
 use Hikuroshi\Terbilang;
@@ -80,11 +93,13 @@ use Hikuroshi\Terbilang;
 echo Terbilang::terbilang(24434)->separator(' >//< '); // Outputs "twenty >//< four >//< thousand >//< four >//< hundred >//< thirty >//< four"
 ```
 
+...
+
 ### `Terbilang::caseStyle(string $caseStyle): Terbilang`
 
 Set the case style for the output string.
 
-- `$caseStyle`: The case style 'camel', 'snake', 'kebab', 'pascal', 'macro', or 'train'.
+- `$caseStyle`: The case style 'camel', 'snake', 'kebab', 'pascal', 'macro', or 'train'. Default is 'lowercase'.
 
 ```php
 use Hikuroshi\Terbilang;
@@ -92,6 +107,8 @@ use Hikuroshi\Terbilang;
 // Convert number with camel case style
 echo Terbilang::terbilang(24434)->caseStyle('camel'); // Outputs "twentyFourThousandFourHundredThirtyFour"
 ```
+
+...
 
 ## Contributing
 

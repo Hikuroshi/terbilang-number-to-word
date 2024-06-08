@@ -24,7 +24,6 @@
     "nineteen"
   ],
   "tens": [
-    "",
     "ten",
     "twenty",
     "thirty",
@@ -35,8 +34,14 @@
     "eighty",
     "ninety"
   ],
-  "hundred": "hundred",
-  "thousands": ["", "thousand", "million", "billion", "trillion"],
-  "simply": "a ",
-  "simplifyRules": ["hundred", "thousand", "million", "billion", "trillion"]
+  "magnitudes": [
+    "hundred",
+    "thousand",
+    "million",
+    "billion",
+    "trillion",
+    "quadrillion",
+    "quintillion"
+  ],
+  "simply": "a "
 }

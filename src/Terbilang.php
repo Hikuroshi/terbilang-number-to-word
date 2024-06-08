@@ -4,12 +4,12 @@ namespace Hikuroshi\Terbilang;
 
 class Terbilang {
     protected int $number;
-    protected string $separator = ' ';
     protected bool $apart = false;
-    protected bool $simply = false;
-    protected array $simplifyRules = [];
+    protected string $separator = ' ';
     protected string $caseStyle = 'default';
-    protected array $languageRules;
+    protected array $simplyRules = [];
+    protected bool $simply = false;
+    protected array $languageRules = [];
     protected string $language = 'en';
 
     public function __construct() {
@@ -50,7 +50,7 @@ class Terbilang {
      */
     public function simply($simply = true): self {
         if (is_array($simply)) {
-            $this->simplifyRules = $simply;
+            $this->simplyRules = $simply;
             $this->simply = true;
         } else {
             $this->simply = $simply;
@@ -93,14 +93,14 @@ class Terbilang {
         $filePath = __DIR__ . '/lang/' . $this->language . '.json';
         if (file_exists($filePath)) {
             $this->languageRules = json_decode(file_get_contents($filePath), true);
-            $this->simplifyRules = $this->languageRules['simplifyRules'] ?? [];
+            $this->simplyRules = $this->languageRules['magnitudes'];
         } else {
             throw new \Exception("Language file not found: " . $filePath);
         }
     }
 
     protected function convertNumberToWords(int $number): array {
-        $thousands = $this->languageRules['thousands'];
+        $magnitudes = array_slice($this->languageRules['magnitudes'], 1);
 
         if ($number == 0) {
             return [$this->languageRules['units'][0]];
@@ -114,7 +114,7 @@ class Terbilang {
             if ($chunk > 0) {
                 $terbilangChunk = $this->convertChunkToWords($chunk);
                 if ($index > 0) {
-                    $terbilangChunk[] = $thousands[$index];
+                    $terbilangChunk[] = $magnitudes[$index - 1];
                 }
                 $terbilang = array_merge($terbilangChunk, $terbilang);
             }
@@ -129,7 +129,7 @@ class Terbilang {
         $units = $this->languageRules['units'];
         $teens = $this->languageRules['teens'];
         $tens = $this->languageRules['tens'];
-        $hundred = $this->languageRules['hundred'];
+        $hundred = $this->languageRules['magnitudes'][0];
 
         $terbilang = [];
 
@@ -139,12 +139,14 @@ class Terbilang {
             $number %= 100;
         }
 
-        if ($number >= 20) {
-            $terbilang[] = $tens[intval($number / 10)];
-            $number %= 10;
-        } elseif ($number >= 10) {
+        if ($number >= 10 && $number < 20) {
             $terbilang[] = $teens[$number - 10];
             $number = 0;
+        }
+
+        if ($number >= 20) {
+            $terbilang[] = $tens[intval($number / 10) - 1];
+            $number %= 10;
         }
 
         if ($number > 0) {
@@ -164,7 +166,7 @@ class Terbilang {
         $length = count($words);
 
         for ($i = 0; $i < $length; $i++) {
-            if ($words[$i] === $this->languageRules['units'][1] && $i + 1 < $length && in_array($words[$i + 1], $this->simplifyRules)) {
+            if ($words[$i] === $this->languageRules['units'][1] && $i + 1 < $length && in_array($words[$i + 1], $this->simplyRules)) {
                 $simplified[] = $this->languageRules['simply'] . $words[$i + 1];
                 $i++;
             } else {
