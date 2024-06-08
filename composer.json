@@ -1,0 +1,34 @@
+{
+  "name": "hikuroshi/terbilang-number-to-word",
+  "description": "A PHP library for converting numbers into words in any language.",
+  "type": "library",
+  "require": {
+    "php": "^7.4 || ^8.0"
+  },
+  "require-dev": {
+    "pestphp/pest": "^2.3"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Hikuroshi\\Terbilang\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Hikuroshi\\Terbilang\\Tests\\": "tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Hikuroshi",
+      "email": "hikugege@gmail.com"
+    }
+  ],
+  "version": "1.0.0",
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
