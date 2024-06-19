@@ -2,15 +2,19 @@
 
 namespace Hikuroshi\Terbilang;
 
-class Terbilang {
-    protected int $number;
+class Terbilang
+{
+    protected int $number = 0;
     protected bool $apart = false;
     protected string $separator = ' ';
-    protected string $caseStyle = 'default';
-    protected array $simplyRules = [];
     protected bool $simply = false;
-    protected array $languageRules = [];
+    protected array $simplyRules = [];
+    protected string $numberingSystem = 'default';
     protected string $language = 'en';
+    protected array $languageRules = [];
+    protected string $caseStyle = 'default';
+    protected static bool $languageCustom = false;
+    protected static array $languageRulesCustom = [];
 
     public function __construct() {
         $this->loadLanguageRules();
@@ -24,9 +28,56 @@ class Terbilang {
      * @return self        Returns an instance of the Terbilang class.
      */
     public static function terbilang(int $number, bool $apart = false): self {
+        if (!is_int($number)) {
+            throw new \InvalidArgumentException("Input must be an integer.");
+        }
+
         $instance = new self();
+        if (self::$languageCustom) {
+            $instance->languageRules = self::$languageRulesCustom;
+            $instance->simplyRules = self::$languageRulesCustom['magnitudes'];
+
+            if (isset(self::$languageRulesCustom['numberingSystem'])) {
+                $instance->numberingSystem = self::$languageRulesCustom['numberingSystem'];
+            }
+
+            self::$languageCustom = false;
+        }
         $instance->number = $number;
         $instance->apart = $apart;
+        return $instance;
+    }
+
+    /**
+     * Load custom language rules for number conversion.
+     *
+     * This method allows loading custom language rules either from an array or a JSON file. Custom language rules will merge with the default language rules.
+     * If an array is provided, it will merge with the default language rules.
+     * If a string is provided, it will treat it as a path to a JSON file and load the rules from the file.
+     *
+     * @param array|string $languageData The custom language data. It can be an associative array of language rules,
+     *                                   or a path to a JSON file containing the language rules.
+     * @return self                      Returns an instance of the Terbilang class with the custom language rules loaded.
+     *
+     * @throws \Exception                Throws an exception if the language file is not found.
+     * @throws \InvalidArgumentException Throws an exception if the provided language data is neither an array nor a string.
+     */
+    public static function loadLang($languageData): self {
+        $instance = new self();
+        self::$languageCustom = true;
+
+        if (is_array($languageData)) {
+            self::$languageRulesCustom = array_replace_recursive($instance->languageRules, $languageData);
+        } elseif (is_string($languageData)) {
+            if (file_exists($languageData)) {
+                self::$languageRulesCustom = array_replace_recursive($instance->languageRules, json_decode(file_get_contents($languageData), true));
+            } else {
+                throw new \Exception("Please provide a valid file path. Language file not found: ". $languageData);
+            }
+        } else {
+            throw new \InvalidArgumentException("Invalid language data provided. Must be an array or a file path.");
+        }
+
         return $instance;
     }
 
@@ -89,17 +140,14 @@ class Terbilang {
         return $this->applyCaseStyle($terbilang);
     }
 
-    protected function loadLanguageRules() {
-        $filePath = __DIR__ . '/lang/' . $this->language . '.json';
-        if (file_exists($filePath)) {
-            $this->languageRules = json_decode(file_get_contents($filePath), true);
-            $this->simplyRules = $this->languageRules['magnitudes'];
-        } else {
-            throw new \Exception("Language file not found: " . $filePath);
+    protected function convertNumberToWords(int $number): array {
+        if ($this->numberingSystem === 'japanese') {
+            return $this->convertNumberToWordsJapanese($number);
         }
+        return $this->convertNumberToWordsDefault($number);
     }
 
-    protected function convertNumberToWords(int $number): array {
+    protected function convertNumberToWordsDefault(int $number): array {
         $magnitudes = array_slice($this->languageRules['magnitudes'], 1);
 
         if ($number == 0) {
@@ -112,7 +160,7 @@ class Terbilang {
         while ($number > 0) {
             $chunk = $number % 1000;
             if ($chunk > 0) {
-                $terbilangChunk = $this->convertChunkToWords($chunk);
+                $terbilangChunk = $this->convertChunkToWordsDefault($chunk);
                 if ($index > 0) {
                     $terbilangChunk[] = $magnitudes[$index - 1];
                 }
@@ -125,7 +173,7 @@ class Terbilang {
         return $this->simply ? $this->simplify($terbilang) : $terbilang;
     }
 
-    protected function convertChunkToWords(int $number): array {
+    protected function convertChunkToWordsDefault(int $number): array {
         $units = $this->languageRules['units'];
         $teens = $this->languageRules['teens'];
         $tens = $this->languageRules['tens'];
@@ -156,9 +204,87 @@ class Terbilang {
         return $terbilang;
     }
 
+    protected function convertNumberToWordsJapanese(int $number): array {
+        $units = $this->languageRules['units'];
+        $magnitudes = array_slice($this->languageRules['magnitudes'], 0, 4);
+
+        if ($number == 0) {
+            return [$units[0]];
+        }
+
+        $terbilang = [];
+        $magnitudesVal = [];
+        foreach ($magnitudes as $index => $label) {
+            $magnitudesVal[10000 ** ($index + 1)] = $label;
+        }
+
+        krsort($magnitudesVal);
+
+        foreach ($magnitudesVal as $value => $label) {
+            if ($number >= $value) {
+                $multiplier = floor($number / $value);
+                $terbilangChunk = $this->convertNumberToWordsJapanese($multiplier);
+                if (!empty($terbilangChunk)) {
+                    $terbilang = array_merge($terbilang, $terbilangChunk);
+                }
+                $terbilang[] = $label;
+                $number %= $value;
+            }
+        }
+
+        $terbilang = array_merge($terbilang, $this->convertChunkToWordsJapanese($number));
+        return $this->simply ? $this->simplify($terbilang) : $terbilang;
+    }
+
+    protected function convertChunkToWordsJapanese(int $number): array {
+        $units = $this->languageRules['units'];
+        $teens = $this->languageRules['teens'];
+        $hundreds = $this->languageRules['hundreds'];
+        $thousands = $this->languageRules['thousands'];
+
+        $terbilang = [];
+
+        if ($number >= 1000) {
+            $terbilang[] = $thousands[floor($number / 1000) - 1];
+            $number %= 1000;
+        }
+
+        if ($number >= 100) {
+            $terbilang[] = $hundreds[floor($number / 100) - 1];
+            $number %= 100;
+        }
+
+        if ($number >= 10) {
+            $terbilang[] = $teens[floor($number / 10) - 1];
+            $number %= 10;
+        }
+
+        if ($number > 0) {
+            $terbilang[] = $units[$number];
+        }
+
+        return $terbilang;
+    }
+
     protected function convertNumberToWordsApart(int $number): array {
         $units = $this->languageRules['units'];
         return array_map(fn($digit) => $units[$digit], str_split((string)$number));
+    }
+
+    protected function loadLanguageRules() {
+        $filePath = __DIR__ . '/lang/' . $this->language . '.json';
+
+        if (file_exists($filePath)) {
+            $languageData = json_decode(file_get_contents($filePath), true);
+            $this->languageRules = $languageData;
+            $this->simplyRules = $this->languageRules['magnitudes'];
+
+            if (isset($languageData['numberingSystem'])) {
+                $this->numberingSystem = $languageData['numberingSystem'];
+            }
+        } else {
+            throw new \Exception("Language file not found: " . $filePath);
+        }
     }
 
     protected function simplify(array $words): array {

@@ -1,0 +1,50 @@
+{
+  "units": [
+    "rei",
+    "ichi",
+    "ni",
+    "san",
+    "yon",
+    "go",
+    "roku",
+    "nana",
+    "hachi",
+    "kyuu"
+  ],
+  "teens": [
+    "juu",
+    "ni juu",
+    "san juu",
+    "yon juu",
+    "go juu",
+    "roku juu",
+    "nana juu",
+    "hachi juu",
+    "kyuu juu"
+  ],
+  "hundreds": [
+    "hyaku",
+    "ni hyaku",
+    "san byaku",
+    "yon hyaku",
+    "go hyaku",
+    "roppyaku",
+    "nana hyaku",
+    "happyaku",
+    "kyuu hyaku"
+  ],
+  "thousands": [
+    "sen",
+    "ni sen",
+    "san zen",
+    "yon sen",
+    "go sen",
+    "roku sen",
+    "nana sen",
+    "hassen",
+    "kyuu sen"
+  ],
+  "magnitudes": ["man", "oku", "chou", "kei"],
+  "simply": "ichi ",
+  "numberingSystem": "japanese"
+}
